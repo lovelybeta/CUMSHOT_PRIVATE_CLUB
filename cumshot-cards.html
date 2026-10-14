@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CUMSHOT — карточки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#000; --ink:#161616; --white:#fff; --paper:#f7f7f2;
+  --lilac:#cfc4d8; --grey:#d4d4d0; --wine:#6b2a25;
+  --serif:"Instrument Serif",Georgia,serif;
+  --sans:"Inter Tight",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--paper);color:var(--black);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px clamp(16px,4vw,48px);flex-wrap:wrap}
+.logo{position:relative;width:250px;height:44px;cursor:pointer}
+.logo span{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;transition:opacity .25s ease,transform .25s ease}
+.logo .f{font-family:var(--serif);font-style:italic;font-size:40px;letter-spacing:.01em;opacity:1}
+.logo .b{font-weight:600;font-size:20px;letter-spacing:.06em;opacity:0;transform:translateY(8px);transition-delay:0s}
+.logo:hover .f,.logo.flip .f{opacity:0;transform:translateY(-8px)}
+.logo:hover .b,.logo.flip .b{opacity:1;transform:none;transition-delay:.2s}
+nav{display:flex;gap:4px;background:var(--grey);padding:4px;border-radius:999px}
+nav button{padding:8px 20px;border-radius:999px;font-weight:500;transition:background .2s,color .2s}
+nav button[aria-selected=true]{background:var(--black);color:var(--white)}
+
+main{padding:8px clamp(16px,4vw,48px) 64px;max-width:1100px;margin:0 auto}
+section[hidden]{display:none}
+
+/* quiz */
+.quiz{display:flex;flex-direction:column;align-items:center;gap:20px}
+.bar{width:100%;max-width:760px;height:3px;background:var(--grey);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--black);width:0;transition:width .3s}
+.scene{perspective:1400px;width:100%;max-width:760px;height:min(440px,58vh);min-height:300px}
+.card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.5,.1,.2,1);cursor:pointer;border-radius:24px}
+.card.open{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:24px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 56px;text-align:center;overflow:auto}
+.ru{background:var(--white);color:var(--black);border:1px solid var(--grey)}
+.en{background:var(--black);color:var(--white);transform:rotateY(180deg)}
+.face .t{font-family:var(--serif);font-size:clamp(34px,6vw,60px);line-height:1.08}
+.face .ipa{margin-top:12px;font-size:20px;opacity:.65;letter-spacing:.02em}
+.face .note{margin-top:22px;max-width:520px;font-size:15px;line-height:1.5;padding:12px 18px;border-radius:14px;background:var(--lilac);color:var(--black);text-align:left;white-space:pre-line}
+.face .tag{position:absolute;top:20px;left:24px;font-size:13px;opacity:.5}
+.face .hint{position:absolute;bottom:18px;font-size:13px;opacity:.45}
+.ctrl{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center}
+.round{width:48px;height:48px;border-radius:50%;background:var(--black);color:var(--white);font-size:20px;display:grid;place-items:center;transition:transform .15s}
+.round:hover{transform:scale(1.07)}
+.round:disabled{opacity:.25;cursor:default;transform:none}
+.count{min-width:70px;text-align:center;font-weight:500}
+.pill{padding:10px 20px;border-radius:999px;border:1px solid var(--black);font-weight:500;transition:background .2s,color .2s}
+.pill:hover{background:var(--black);color:var(--white)}
+.pill.solid{background:var(--black);color:var(--white)}
+.pill.solid:hover{background:var(--wine);border-color:var(--wine)}
+.pill.danger:hover{background:var(--wine);border-color:var(--wine)}
+
+/* list */
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 24px}
+.tools .grow{flex:1}
+.search{flex:1;min-width:180px;max-width:320px;padding:10px 18px;border-radius:999px;border:1px solid var(--grey);background:var(--white)}
+.list{display:grid;gap:12px}
+.row{display:grid;grid-template-columns:1fr 1fr auto;gap:0;border-radius:20px;overflow:hidden;background:var(--white);border:1px solid var(--grey);transition:border-color .2s}
+.row:focus-within{border-color:var(--black)}
+.cell{padding:16px 22px;display:flex;flex-direction:column;gap:8px}
+.cell.e{background:var(--black);color:var(--white)}
+.cell label{font-size:12px;opacity:.5}
+.cell textarea{width:100%;resize:none;border:0;background:transparent;outline:0;font-family:var(--serif);font-size:25px;line-height:1.15;overflow:hidden}
+.cell textarea::placeholder{opacity:.3}
+.cell .n{font-family:var(--sans);font-size:14px;line-height:1.4;background:var(--lilac);color:var(--black);border-radius:10px;padding:8px 12px;min-height:40px}
+.cell.e .n::placeholder{color:#555}
+.cell textarea.p{font-family:var(--sans);font-size:15px;opacity:.7}
+.side{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:10px;background:var(--paper)}
+.side button{width:34px;height:34px;border-radius:50%;font-size:16px;border:1px solid var(--grey);background:var(--white)}
+.side button:hover{background:var(--wine);color:var(--white);border-color:var(--wine)}
+.empty{padding:48px;text-align:center;border:1px dashed var(--grey);border-radius:20px;background:var(--white)}
+
+/* dialog */
+dialog{border:0;border-radius:24px;padding:28px;width:min(560px,92vw);background:var(--white);box-shadow:0 20px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+dialog h2{font-family:var(--serif);font-weight:400;font-size:32px;margin-bottom:8px}
+dialog p{font-size:14px;opacity:.7;margin-bottom:14px}
+dialog textarea{width:100%;height:200px;border:1px solid var(--grey);border-radius:14px;padding:14px;background:var(--paper);font-size:14px}
+dialog .act{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--black);color:var(--white);padding:10px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.3s;font-size:14px}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:680px){
+  .face{padding:32px 24px}
+  .row{grid-template-columns:1fr}
+  .side{flex-direction:row;justify-content:flex-end}
+  .logo .f{font-size:34px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" id="logo" title="CUMSHOT / BEST WOMEN EVER"><span class="f">CUMSHOT</span><span class="b">BEST WOMEN EVER</span></div>
+  <nav role="tablist">
+    <button role="tab" id="tab-quiz" aria-selected="true">Карточки</button>
+    <button role="tab" id="tab-list" aria-selected="false">Все слова</button>
+  </nav>
+</header>
+
+<main>
+  <section id="quiz" class="quiz">
+    <div class="bar"><i id="bar"></i></div>
+    <div class="scene">
+      <div class="card" id="card" tabindex="0" role="button" aria-label="Перевернуть карточку">
+        <div class="face ru"><span class="tag">RU</span><div class="t" id="ruText"></div><span class="hint">нажми, чтобы увидеть перевод</span></div>
+        <div class="face en"><span class="tag">EN</span><div class="t" id="enText"></div><div class="ipa" id="ipaText"></div><div class="note" id="noteText" hidden></div></div>
+      </div>
+    </div>
+    <div class="ctrl">
+      <button class="round" id="prev" aria-label="Назад">←</button>
+      <div class="count" id="count"></div>
+      <button class="round" id="next" aria-label="Вперёд">→</button>
+    </div>
+    <div class="ctrl">
+      <button class="pill" id="shuffle">Перемешать</button>
+      <button class="pill" id="restart">Сначала</button>
+    </div>
+  </section>
+
+  <section id="listView" hidden>
+    <div class="tools">
+      <input class="search" id="search" type="search" placeholder="Поиск по словам">
+      <span class="grow"></span>
+      <button class="pill solid" id="add">+ Карточка</button>
+      <button class="pill" id="imp">Импорт</button>
+      <button class="pill" id="exp">Экспорт</button>
+      <button class="pill danger" id="reset">Сбросить</button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+</main>
+
+<dialog id="dlg">
+  <h2 id="dlgTitle">Импорт</h2>
+  <p id="dlgHelp"></p>
+  <textarea id="dlgText"></textarea>
+  <div class="act">
+    <button class="pill" id="dlgCancel">Закрыть</button>
+    <button class="pill solid" id="dlgOk">Добавить</button>
+  </div>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='cumshot-cards-v2';
+const DEFAULT_CARDS=[
+{ru:"читать по очереди",en:"read by turns",ipa:"[riːd baɪ tɜːnz]",note:""},
+{ru:"ссылка, изгнание",en:"exile",ipa:"[ˈeksaɪl]",note:"(forced to live away from home)\n- He lived in exile for many years.\n- He felt exiled from his own family.\n- Many exiles never returned to their homeland."},
+{ru:"сесть на шпагат",en:"to do the splits",ipa:"[tuː duː ðə splɪts]",note:"to sit on the twine\n- Performing all of the above methods, you quickly understand how to sit on the twine for 10 days at home.\nВ живом английском обычно говорят именно «do the splits»."},
+{ru:"выгодно (для себя)",en:"beneficial",ipa:"[ˌbenɪˈfɪʃl]",note:"Варианты по контексту:\n- to one's advantage [əd'vɑːntɪdʒ] — выгодно мне, в мою пользу\n- profitable ['prɒfɪtəbl] — приносит деньги, прибыльно\n- worth it [wɜːθ ɪt] — оно того стоит\n- It pays off — это окупится"},
+{ru:"обиженный",en:"offended",ipa:"[əˈfendɪd]",note:""},
+{ru:"обидеться",en:"to take offence, to get offended",ipa:"[tuː teɪk əˈfens], [tuː get əˈfendɪd]",note:"- He tries not to offend anyone, so it is usually like.\n- I do not offend, but others may take offense."},
+{ru:"грызть, кусать, глотать, жевать, обгрызать, обгладывать",en:"gnaw",ipa:"[nɔː]",note:"If it's VERY chewy, you might only be able to «gnaw» at it."},
+{ru:"онемение, оцепенение",en:"numbness",ipa:"[ˈnʌmnəs]",note:""},
+{ru:"оговорка, предостережение, разъяснение, условие",en:"caveat",ipa:"[ˈkeɪviæt]",note:""},
+{ru:"недооцененный",en:"underestimated",ipa:"[ˌʌndərˈestɪmeɪtɪd]",note:""},
+{ru:"оценить, прикинуть",en:"to estimate",ipa:"[tuː ˈestɪmeɪt]",note:"Как существительное — [ˈestɪmət]: оценка, смета."},
+{ru:"назло",en:"out of spite; to spite (s.o.)",ipa:"[aʊt əv spaɪt]",note:""},
+{ru:"несмотря на, вопреки",en:"despite / in spite of",ipa:"[dɪˈspaɪt]",note:"Ошибка из исходника: «despite of» неверно. Правильно: despite + noun ИЛИ in spite of + noun."},
+{ru:"холостяк; бакалавр",en:"bachelor",ipa:"[ˈbætʃələ]",note:""},
+{ru:"камень преткновения, загвоздка, препятствие",en:"the sticking point",ipa:"[ðə ˈstɪkɪŋ pɔɪnt]",note:""},
+{ru:"бросить курить",en:"quit smoking",ipa:"[kwɪt ˈsməʊkɪŋ]",note:""},
+{ru:"Я резко бросил",en:"I went cold turkey",ipa:"[aɪ went kəʊld ˈtɜːki]",note:""},
+{ru:"наводить справки",en:"make inquiries",ipa:"[meɪk ɪnˈkwaɪəriz]",note:""},
+{ru:"стратегический ход",en:"chess move",ipa:"[tʃes muːv]",note:"Ещё вариант: strategic move [strəˈtiːdʒɪk muːv]."},
+{ru:"суетиться, наводить шумиху/суету",en:"make a fuss",ipa:"[meɪk ə fʌs]",note:""},
+{ru:"тесто",en:"dough",ipa:"[dəʊ]",note:""},
+{ru:"потолок",en:"ceiling",ipa:"[ˈsiːlɪŋ]",note:""},
+{ru:"подвал",en:"cellar",ipa:"[ˈselə]",note:""},
+{ru:"качаться, раскачиваться; колебание, размах",en:"swing (swung, swung)",ipa:"[swɪŋ] [swʌŋ]",note:"I'm sick of these mood swings"},
+{ru:"качели",en:"swing, seesaw",ipa:"[swɪŋ], [ˈsiːsɔː]",note:""},
+{ru:"взглянуть украдкой, глянуть",en:"to peek",ipa:"[tuː piːk]",note:""},
+{ru:"усиление (типа «ещё тот», «настоящий», «чёртовски сильный»)",en:"heck of",ipa:"[hek əv]",note:"It's been one heck of a seesaw, hasn't it?\n= В последнее время сплошные качели, не правда ли?"},
+{ru:"Глянь / Взгляни",en:"Take a peek",ipa:"[teɪk ə piːk]",note:""},
+{ru:"процеживать через сито",en:"to strain through a sieve",ipa:"[tuː streɪn θruː ə sɪv]",note:""},
+{ru:"я ещё не успел",en:"I haven't had a chance yet",ipa:"[aɪ ˈhævnt hæd ə tʃɑːns jet]",note:""},
+{ru:"схема",en:"scheme, map",ipa:"[skiːm], [mæp]",note:"scheme — схема, план (иногда: махинация); map — схема-карта, план местности."},
+{ru:"яичный желток",en:"egg yolk",ipa:"[eɡ jəʊk]",note:""},
+{ru:"бусы; чётки",en:"beads",ipa:"[biːdz]",note:""},
+{ru:"шампиньон",en:"champignon; field mushroom",ipa:"[ˈʃæmpɪnjɒn]; [fiːld ˈmʌʃruːm]",note:""},
+{ru:"суета",en:"bustle, fuss",ipa:"[ˈbʌsl], [fʌs]",note:""},
+{ru:"канцелярия (ручки, карандаши, линейки, ..)",en:"stationery",ipa:"[ˈsteɪʃənri]",note:"Не путать: stationary [ˈsteɪʃənri] — неподвижный (произносится так же!).\nДругие варианты: office supplies — офисные принадлежности; writing supplies — всё для письма."},
+{ru:"цапля",en:"heron",ipa:"[ˈherən]",note:""},
+{ru:"избирательный",en:"selective",ipa:"[sɪˈlektɪv]",note:"Про выборы — electoral [ɪˈlektərəl]."},
+{ru:"заботливый",en:"caring",ipa:"[ˈkeərɪŋ]",note:""},
+{ru:"ставка (готов поспорить, что)",en:"bet",ipa:"[bet]",note:""},
+{ru:"борьба",en:"struggle",ipa:"[ˈstrʌɡl]",note:""},
+{ru:"последовательный",en:"consistent",ipa:"[kənˈsɪstənt]",note:""},
+{ru:"исследовать, изучать",en:"to explore",ipa:"[tuː ɪkˈsplɔː]",note:""},
+{ru:"аниме",en:"anime",ipa:"[ˈænɪmeɪ]",note:"Японская анимация. Произносится «а-ни-мей», а не «а-ни-ме»."},
+{ru:"заключение, вывод",en:"conclusion",ipa:"[kənˈkluːʒn]",note:"- in conclusion — в заключение\n- draw / reach a conclusion — сделать вывод\n- jump to conclusions — делать поспешные выводы\nЕщё: summary — краткий итог; finding — вывод исследования."},
+{ru:"несправедливость",en:"injustice; unfairness",ipa:"[ɪnˈdʒʌstɪs]; [ʌnˈfeənəs]",note:"injustice — серьёзная, социальная/правовая несправедливость.\nunfairness — бытовая («это нечестно»)."},
+{ru:"в ближайшее время",en:"in the nearest future",ipa:"[ɪn ðə ˈnɪərɪst ˈfjuːtʃə]",note:"Чаще говорят: in the near future, soon, shortly."},
+{ru:"эхо",en:"echo",ipa:"[ˈekəʊ]",note:""},
+{ru:"напряжение",en:"tension",ipa:"[ˈtenʃn]",note:"Электрическое напряжение — voltage [ˈvəʊltɪdʒ]; нервное — stress [stres]."},
+{ru:"жаждущий (я жажду его получить)",en:"eager",ipa:"[ˈiːɡə]",note:"I'm eager to get it.\nВарианты по контексту:\n- thirsty [ˈθɜːsti] — буквально «хочу пить», в переносном смысле — жадный до чего-то\n- craving [ˈkreɪvɪŋ] — сильная тяга\n- dying to — умираю, как хочу: I'm dying to get it"},
+{ru:"оправдывать",en:"to justify",ipa:"[tuː ˈdʒʌstɪfaɪ]",note:""},
+{ru:"организовывать (пространство, дела, событие)",en:"to organize",ipa:"[tuː ˈɔːɡənaɪz]",note:"Варианты по контексту:\n- to arrange [əˈreɪndʒ] — договориться, устроить (встречу, поездку)\n- to set up — организовать, наладить (событие, систему)\n- to tidy up — навести порядок (пространство)\n- to plan — спланировать"},
+{ru:"измученный, обессиленный",en:"exhausted",ipa:"[ɪɡˈzɔːstɪd]",note:""},
+{ru:"восприятие (ситуации, твоих слов)",en:"perception",ipa:"[pəˈsepʃn]",note:"Варианты по контексту:\n- how it's perceived / the way you see it — как это воспринимается\n- take on (something) — взгляд, трактовка\n- interpretation [ɪnˌtɜːprɪˈteɪʃn] — истолкование слов"},
+{ru:"крепость",en:"fortress",ipa:"[ˈfɔːtrɪs]",note:""},
+{ru:"серьезно",en:"seriously",ipa:"[ˈsɪəriəsli]",note:"Варианты по контексту:\n- Seriously? — Серьёзно?! (удивление)\n- Are you serious? — Ты серьёзно?\n- I'm serious — я не шучу\n- No kidding — без шуток"},
+{ru:"плов",en:"pilaf",ipa:"[pɪˈlæf]",note:""},
+{ru:"искренне",en:"sincerely, genuinely",ipa:"[sɪnˈsɪəli], [ˈdʒenjuɪnli]",note:"sincerely — искренне (и в конце письма: Sincerely yours).\ngenuinely — по-настоящему, неподдельно.\nЕщё: truly, heartfelt — от всего сердца."},
+{ru:"Сделаю что ты просишь меня и заплачу тебе за это",en:"Whatever you ask me to do and pay you to do it",ipa:"",note:"Естественный перевод русской фразы: I'll do what you ask me to, and I'll pay you for it.\nВ твоём варианте английская часть — обрывок: «всё, о чём ты просишь и (за что) платишь»."},
+{ru:"переговоры (сотрудничество)",en:"negotiations",ipa:"[nɪˌɡəʊʃiˈeɪʃnz]",note:"Варианты по контексту:\n- talks — переговоры (неформально/дипломатия)\n- cooperation [kəʊˌɒpəˈreɪʃn] — сотрудничество\n- collaboration [kəˌlæbəˈreɪʃn] — совместная работа\n- partnership — партнёрство"},
+{ru:"богомол",en:"mantis",ipa:"[ˈmæntɪs]",note:""}
+];
+let cards=load(), order=[], idx=0, q='';
+
+function load(){try{const s=localStorage.getItem(KEY);if(s){const a=JSON.parse(s);if(Array.isArray(a))return a}}catch(e){}return JSON.parse(JSON.stringify(DEFAULT_CARDS))}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(cards))}catch(e){}}
+const $=id=>document.getElementById(id);
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2000)}
+function resetOrder(){order=cards.map((_,i)=>i);idx=0}
+
+/* quiz */
+function render(){
+  const card=$('card');
+  if(!cards.length){$('ruText').textContent='Список пуст';$('enText').textContent='';$('count').textContent='0 / 0';$('bar').style.width='0';return}
+  if(idx>=order.length)idx=order.length-1;
+  const c=cards[order[idx]];
+  $('ruText').textContent=c.ru||'—';
+  $('enText').textContent=c.en||'—';$('ipaText').textContent=c.ipa||'';
+  const n=$('noteText');n.hidden=!c.note;n.textContent=c.note||'';
+  $('count').textContent=(idx+1)+' / '+order.length;
+  $('bar').style.width=((idx+1)/order.length*100)+'%';
+  $('prev').disabled=idx===0;$('next').disabled=idx===order.length-1;
+}
+function go(d){const n=idx+d;if(n<0||n>=order.length)return;const card=$('card');
+  if(card.classList.contains('open')){card.classList.remove('open');setTimeout(()=>{idx=n;render()},250)}else{idx=n;render()}}
+$('card').onclick=()=>$('card').classList.toggle('open');
+$('card').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('card').classList.toggle('open')}};
+$('prev').onclick=()=>go(-1);$('next').onclick=()=>go(1);
+$('shuffle').onclick=()=>{for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}idx=0;$('card').classList.remove('open');render();toast('Перемешано')};
+$('restart').onclick=()=>{resetOrder();$('card').classList.remove('open');render()};
+document.addEventListener('keydown',e=>{
+  if(!$('quiz').hidden && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){
+    if(e.key==='ArrowRight')go(1);
+    if(e.key==='ArrowLeft')go(-1);
+    if(e.key===' '&&document.activeElement.id!=='card'){e.preventDefault();$('card').classList.toggle('open')}
+  }
+});
+
+/* list */
+function fit(t){t.style.height='auto';t.style.height=t.scrollHeight+'px'}
+function renderList(){
+  const L=$('list');L.innerHTML='';
+  const f=q.trim().toLowerCase();
+  const shown=cards.map((c,i)=>[c,i]).filter(([c])=>!f||(c.ru+' '+c.en+' '+(c.ipa||'')+' '+c.note).toLowerCase().includes(f));
+  if(!shown.length){L.innerHTML='<div class="empty">'+(cards.length?'Ничего не найдено':'Пока нет карточек. Нажми «+ Карточка» или «Импорт».')+'</div>';return}
+  shown.forEach(([c,i])=>{
+    const r=document.createElement('div');r.className='row';
+    r.innerHTML=
+      '<div class="cell"><label>Русский</label><textarea rows="1" data-k="ru" placeholder="Слово по-русски"></textarea></div>'+
+      '<div class="cell e"><label>English</label><textarea rows="1" data-k="en" placeholder="Translation"></textarea><textarea class="p" rows="1" data-k="ipa" placeholder="[транскрипция]"></textarea>'+
+      '<textarea class="n" rows="1" data-k="note" placeholder="Заметка / варианты перевода (необязательно)"></textarea></div>'+
+      '<div class="side"><button data-a="dup" title="Дублировать">⧉</button><button data-a="del" title="Удалить">✕</button></div>';
+    r.querySelectorAll('textarea').forEach(t=>{
+      t.value=c[t.dataset.k]||'';
+      t.addEventListener('input',()=>{c[t.dataset.k]=t.value;fit(t);save()});
+    });
+    r.querySelector('[data-a=del]').onclick=()=>{if(confirm('Удалить карточку?')){cards.splice(i,1);save();resetOrder();renderList();render()}};
+    r.querySelector('[data-a=dup]').onclick=()=>{cards.splice(i+1,0,{...c});save();resetOrder();renderList();render()};
+    L.appendChild(r);
+  });
+  L.querySelectorAll('textarea').forEach(fit);
+}
+$('search').oninput=e=>{q=e.target.value;renderList()};
+$('add').onclick=()=>{cards.unshift({ru:'',en:'',ipa:'',note:''});q='';$('search').value='';save();resetOrder();renderList();render();const t=$('list').querySelector('textarea');t&&t.focus()};
+$('reset').onclick=()=>{if(confirm('Вернуть исходный список? Твои правки в этом браузере пропадут.')){cards=JSON.parse(JSON.stringify(DEFAULT_CARDS));save();resetOrder();renderList();render()}};
+
+/* import / export */
+let mode='';
+function openDlg(m){mode=m;const d=$('dlg');
+  if(m==='imp'){$('dlgTitle').textContent='Импорт';$('dlgHelp').textContent='Вставь список: одна карточка на строку, «русский [Tab] english [Tab] заметка». Это формат экспорта Quizlet (Export → Copy text, между термином и определением — Tab). Транскрипция в [скобках] после английского слова подхватится сама. Заметка необязательна.';$('dlgText').value='';$('dlgOk').textContent='Добавить';$('dlgOk').hidden=false}
+  else{$('dlgTitle').textContent='Экспорт';$('dlgHelp').textContent='Скопируй текст и сохрани. Чтобы поделиться своим списком, отправь этот текст — его можно вставить через «Импорт».';$('dlgText').value=cards.map(c=>[c.ru,c.en+(c.ipa?' '+c.ipa:''),(c.note||'').replace(/\n/g,' / ')].join('\t')).join('\n');$('dlgOk').textContent='Скопировать'}
+  d.showModal()}
+$('imp').onclick=()=>openDlg('imp');$('exp').onclick=()=>openDlg('exp');
+$('dlgCancel').onclick=()=>$('dlg').close();
+$('dlgOk').onclick=()=>{
+  if(mode==='imp'){
+    const add=$('dlgText').value.split('\n').map(l=>l.split('\t')).filter(p=>p[0]&&p[0].trim()&&p[1]!==undefined)
+      .map(p=>({ru:p[0].trim(),en:(p[1]||'').replace(/\s*(\[[^\]]*\])\s*$/,'').trim(),ipa:((p[1]||'').match(/(\[[^\]]*\])\s*$/)||['',''])[1],note:(p[2]||'').trim().replace(/ \/ /g,'\n')}));
+    if(!add.length){toast('Не нашёл строк с Tab между словами');return}
+    cards=cards.concat(add);save();resetOrder();renderList();render();$('dlg').close();toast('Добавлено: '+add.length);
+  }else{
+    const t=$('dlgText');t.select();try{navigator.clipboard.writeText(t.value);}catch(e){document.execCommand('copy')}toast('Скопировано');
+  }
+};
+
+/* tabs */
+function tab(n){const quiz=n==='quiz';
+  $('quiz').hidden=!quiz;$('listView').hidden=quiz;
+  $('tab-quiz').setAttribute('aria-selected',quiz);$('tab-list').setAttribute('aria-selected',!quiz);
+  if(quiz){resetOrder();render()}else renderList()}
+$('tab-quiz').onclick=()=>tab('quiz');$('tab-list').onclick=()=>tab('list');
+$('logo').onclick=()=>$('logo').classList.toggle('flip');
+
+resetOrder();render();
+</script>
+</body>
+</html>
